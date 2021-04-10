@@ -62,19 +62,4 @@ class Trainer(BaseTrainer):
                 output = self.model(image)
                 loss = self.criterion(self.center(output), self.center(mask))
                 metric_monitor.update("Loss", loss.item())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                stream.set_description(f"Epoch: {epoch} | Validation\t|{metric_monitor}")
