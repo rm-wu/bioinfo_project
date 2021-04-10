@@ -3,6 +3,7 @@ TODO:
 ================================================================================
 GESTIONE DEL DATASET
 
+FATTO
 dataset/makeDaset.py:
 	File per creare le tile da utilizzare durante il training facendo il
 	mirroring dei bordi
@@ -13,6 +14,7 @@ dataset/makeDaset.py:
 	Per ciascuna immagine 2000x2000 otteniamo 25 tile di dimensione 668x668 di
 	cui utilizziamo 400x400 pixel centrali per la segmentazione
 
+FATTO
 dataset/dataset.py
 	Contiene:
 		1) class VascularDataset: eredita da torch.utils.data.Dataset
@@ -31,6 +33,7 @@ dataset/dataset.py
 			per creare i due dataset.
 			Simile alla funzione gen_split di ego-rnn in makeDaset
 
+FATTO
 DataLoader:
 	Una volta che abbiamo il dataset organizzato come prima si può usare il
 	DataLoader standard di PyTorch (i.e. non dovrebbe servire implementarlo)
@@ -64,5 +67,9 @@ HQA
 
 ================================================================================
 TRAINING
+
+
+Save/Load Checkpoint:
+
 Logging:
 	tensorboard o tensorboardx?
