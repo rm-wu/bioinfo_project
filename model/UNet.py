@@ -93,13 +93,13 @@ class UNet(nn.Module):
         # Down Stream
         for down_layer in self.down_stream:
             x = down_layer(x)
-            print(x.shape)
+            #print(x.shape)
             intermediate_steps.append(x)
             x = self.pool_layer(x)
-            print(x.shape)
-        print(f"intermediate_steps:{len(intermediate_steps)}")
+            #print(x.shape)
+        #print(f"intermediate_steps:{len(intermediate_steps)}")
         x = self.bottom(x)
-        print(x.shape)
+        #print(x.shape)
         intermediate_steps.reverse()
 
         # Up Stream
@@ -109,18 +109,18 @@ class UNet(nn.Module):
             x = transp(x)
             feat_c = center_crop(feat, x)
             # TODO: problems when the difference between the dimensions is odd
-            print(f"x: {x.shape}\tfeat_c : {feat_c.shape}")
+            #print(f"x: {x.shape}\tfeat_c : {feat_c.shape}")
 
             x = torch.cat((x, feat_c), 1)
-            print(x.shape)
+            #print(x.shape)
             x = conv(x)
-            print(x.shape)
+            #print(x.shape)
 
         return self.output_layer(x)
 
     def __str__(self):
         """
-        Model prints with number of trainable parameters
+        Model with number of trainable parameters
         """
         model_parameters = filter(lambda p: p.requires_grad, self.parameters())
         params = sum([np.prod(p.size()) for p in model_parameters])
