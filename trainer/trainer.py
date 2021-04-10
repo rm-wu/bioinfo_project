@@ -57,7 +57,7 @@ class Trainer(BaseTrainer):
         stream = tqdm(self.val_loader)
         metric_monitor = MetricMonitor()
         with torch.no_grad():
-            for batch_idx, (image, mask) in enumerate(self.val_loader):
+            for batch_idx, (image, mask) in enumerate(stream):
                 image, mask = image.to(self.device), mask.to(self.device)
                 output = self.model(image)
                 loss = self.criterion(self.center(output), self.center(mask))
