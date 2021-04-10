@@ -81,11 +81,7 @@ def make_dataset(in_path, out_path):
     for cancer_id, cancer in enumerate(cancer_list):
         imgs = sorted(Path(cancer).glob("[!*seg*]*.png"))
         segs = sorted(Path(cancer).glob("*seg*.png"))
-        # print(cancer)
-        # print(str(cancer).split("/")[-2], "\t" ,str(cancer).split("/")[-1])
         dataset_descr += f'{cancer_id}, ,{str(cancer).split("/")[-2]}, {str(len(imgs))}\n'
-        # print(len(imgs), len(segs))
-        # dataset_descr
         crop_images(imgs, segs,
                     os.path.join(test_imag_path, f"{cancer_id}"),
                     os.path.join(test_mask_path, f"{cancer_id}"))
