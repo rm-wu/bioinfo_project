@@ -1,0 +1,68 @@
+BIOINFORMATICS
+TODO:
+================================================================================
+GESTIONE DEL DATASET
+
+dataset/makeDaset.py:
+	File per creare le tile da utilizzare durante il training facendo il
+	mirroring dei bordi
+	Uso: si chiama da riga di comando e crea la directory con il seguente tree
+
+		dataset/<split>/<masks/images>/<patient_id>/<image_id>_<tile_id>.png
+
+	Per ciascuna immagine 2000x2000 otteniamo 25 tile di dimensione 668x668 di
+	cui utilizziamo 400x400 pixel centrali per la segmentazione
+
+dataset/dataset.py
+	Contiene:
+		1) class VascularDataset: eredita da torch.utils.data.Dataset
+			Dataset che contiene uno dei due split o validation o training
+				-> riceve in ingresso una lista di images
+
+		2) funct generate_dataset(data_dir, val_ids)
+			funzione che riceve in input:
+				- data_dir 	->	path alla cartella con il cropped dataset
+				- val_ids 	->	lista di id dei pazienti da usare come
+								validation set (default None : no validation)
+			Restituisce due objects di tipo VascularDataset
+
+		3) funct gen_split(root_dir, val_ids)
+			funzione che genera le liste di file da passare a VascularDataset
+			per creare i due dataset.
+			Simile alla funzione gen_split di ego-rnn in makeDaset
+
+DataLoader:
+	Una volta che abbiamo il dataset organizzato come prima si può usare il
+	DataLoader standard di PyTorch (i.e. non dovrebbe servire implementarlo)
+
+Data Augmentations:
+	Usare albumentations
+		--> ElasticTransform : transform citata nel paper di U-Net
+	Link utili:
+		https://albumentations.ai/docs/examples/pytorch_semantic_segmentation/
+
+================================================================================
+MODELLI
+
+folder :
+model/
+	| <architecture>.py
+	| loss.py				# questi file possono servire in caso di definizioni
+	| metric.py				# di loss/metriche particolari
+
+--------------------------------------------------------------------------------
+U-Net:
+	Modello praticamente pronto, da rivedere alcune parti "generiche".
+
+	Nota: 	nella descrizione del modello ad ogni passaggio in una DoubleConv
+			il tensore si rimpicciolisce, quindi non tutte le immagini di ogni
+			dimensione vanno bene, motivo per cui per il tiling sono volate
+			molte bestemmie.
+
+--------------------------------------------------------------------------------
+HQA
+
+================================================================================
+TRAINING
+Logging:
+	tensorboard o tensorboardx?
