@@ -8,7 +8,7 @@ import albumentations.augmentations.functional as F
 INPUT_DIM = 668
 IMG_DIM = 2000 + 134 * 2
 SLICE_LEN = 400
-N = 5
+# N = 5 * 5
 PADDING = 134
 
 
@@ -54,17 +54,24 @@ def make_dataset(in_path, out_path):
     Path(train_mask_path).mkdir(parents=True, exist_ok=True)
     Path(train_imag_path).mkdir(parents=True, exist_ok=True)
 
-    patients = sorted(Path(in_path).glob("Train/*/*/"))
+    patients = sorted(Path(in_path).glob("Train/[!.]*/[!.]*/"))
     dataset_descr = "patient_id, patient, cancer_type, num_imgs\n"
+    print("Processing Train Set")
     for patient_id, patient in enumerate(patients):
         imgs = sorted(Path(patient).glob("*/[!*seg*]*.png"))
         segs = sorted(Path(patient).glob("*/*seg*.png"))
+
         print(str(patient).split("/")[-2], "\t", str(patient).split("/")[-1])
+        Path(os.path.join(train_imag_path, f"{patient_id}"))\
+            .mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(train_mask_path, f"{patient_id}"))\
+            .mkdir(parents=True, exist_ok=True)
 
         dataset_descr += f'{patient_id}, {str(patient).split("/")[-1]}, {str(patient).split("/")[-2]}, {str(len(imgs))}\n'
         crop_images(imgs, segs,
                     os.path.join(train_imag_path, f"{patient_id}"),
                     os.path.join(train_mask_path, f"{patient_id}"))
+
     print(dataset_descr)
     with open(os.path.join(out_path, "train_descr.csv"), "w+") as f:
         f.write(dataset_descr)
@@ -76,17 +83,25 @@ def make_dataset(in_path, out_path):
     Path(test_mask_path).mkdir(parents=True, exist_ok=True)
     Path(test_imag_path).mkdir(parents=True, exist_ok=True)
 
-    cancer_list = sorted(Path(in_path).glob("Test/*/"))
+    cancer_list = sorted(Path(in_path).glob("Test/[!.]*/"))
     dataset_descr = "patient_id, patient, cancer_type, num_imgs\n"
+    print("Proessing Test Set")
     for cancer_id, cancer in enumerate(cancer_list):
         imgs = sorted(Path(cancer).glob("[!*seg*]*.png"))
         segs = sorted(Path(cancer).glob("*seg*.png"))
-        dataset_descr += f'{cancer_id}, ,{str(cancer).split("/")[-2]}, {str(len(imgs))}\n'
+        Path(os.path.join(test_imag_path, f"{cancer_id}")) \
+            .mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(test_mask_path, f"{cancer_id}")) \
+            .mkdir(parents=True, exist_ok=True)
+
+        print(str(cancer).split("/")[-1])
+        dataset_descr += f'{cancer_id}, ,{str(cancer).split("/")[-1]}, {str(len(imgs))}\n'
         crop_images(imgs, segs,
                     os.path.join(test_imag_path, f"{cancer_id}"),
                     os.path.join(test_mask_path, f"{cancer_id}"))
+
     print(dataset_descr)
-    with open(os.path.join(out_path, "train_descr.csv"), "w+") as f:
+    with open(os.path.join(out_path, "test_descr.csv"), "w+") as f:
         f.write(dataset_descr)
 
 

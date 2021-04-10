@@ -5,7 +5,6 @@ from PIL import Image
 import numpy as np
 
 
-
 class VascularDataset(Dataset):
     """
     Dataset class for the vascular dataset:
@@ -25,12 +24,15 @@ class VascularDataset(Dataset):
         img_path = str(self.images[index])
         seg_path = img_path.replace('images', 'masks')
         img = cv2.imread(img_path)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
+        # TODO: alternativa for binarize the segmentation mask
         seg = Image.open(seg_path)
         seg = seg.convert('RGB')    # remove the transparent portion of the image
         seg = seg.convert('L')      # from RGB to black and white
         seg = seg.point(lambda x: 0 if x < 1 else 255.0, '1')
-        seg = np.array(seg)  # equivalent to a cv2 image
+        seg = np.array(seg, dtype=np.float)  # equivalent to a cv2 image
+        seg = np.expand_dims(seg, axis=0)
 
         if self.transform:
             transformed = self.transform(image=img, mask=seg)
@@ -49,7 +51,7 @@ def gen_split(root_dir, valid_ids):
     train_dataset = []
     valid_dataset = []
     # extract all the folder related to patients, i.e. root_dir/Train/cancer_type/patient
-    patients = sorted(Path(root_dir).glob("Train/images/*"))
+    patients = sorted(Path(root_dir).glob("Train/images/[!.]*"))
     for patient in patients:
         if str(patient).split("/")[-1] in valid_ids:
             valid_dataset += sorted(Path(patient).glob('*'))
@@ -81,3 +83,6 @@ def generate_datasets(data_dir, valid_ids=None):
                 VascularDataset(val_list))      # Validation Set
 
 
+if __name__ == "__main__":
+    data_dir = '../data'
+    train_dataset, val_dataset = generate_datasets(data_dir, valid_ids=['0', '1'])
