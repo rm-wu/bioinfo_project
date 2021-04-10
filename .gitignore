@@ -112,3 +112,5 @@ datasets/
 __MACOSX/
 
 **/.DS_Store
+
+data/
