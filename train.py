@@ -12,6 +12,9 @@ from model.UNet import UNet
 from dataset import generate_datasets
 from trainer import Trainer
 
+from utils import iou
+from utils import dice
+
 # fix random seeds for reproducibility
 SEED = 42
 torch.manual_seed(SEED)
@@ -50,11 +53,14 @@ def main(config):
     criterion = config['criterion']
     optimizer = torch.optim.Adam(params=model.parameters(),
                                  lr=3e-4)
-
+    scheduler=torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
+    metric_fnts=[iou, dice]
 
     trainer = Trainer(model=model,
                       criterion=criterion,
+                      metric_fnts=metric_fnts,
                       optimizer=optimizer,
+                      scheduler=scheduler,
                       config=config,
                       train_loader=train_loader,
                       val_loader=valid_loader,
@@ -81,7 +87,7 @@ if __name__ == '__main__':
         config['data_dir'] = '/content/drive/My Drive/Bioinformatics/dataset'
         config['num_workers'] = 4
     else:
-        config['data_dir'] = './data'
+        config['data_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dataset'
         config['num_workers'] = 1
 
     # TODO: check if this loss is good
@@ -89,8 +95,8 @@ if __name__ == '__main__':
 
     # TODO: add other metrics like accuracy etc.
     # TODO: configure the optimizer/LR Scheduler and their hyperparams
-    config['val_ids'] = ['1', '5']
-    config['epochs'] = 10
-    config['batch_size'] = 4
+    config['val_ids'] = ['1']
+    config['epochs'] = 2
+    config['batch_size'] = 2
 
     main(config)

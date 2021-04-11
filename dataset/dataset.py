@@ -95,5 +95,5 @@ def generate_datasets(data_dir, valid_ids=None):
 
 
 if __name__ == "__main__":
-    data_dir = '../data'
+    data_dir = './data'
     train_dataset, val_dataset = generate_datasets(data_dir, valid_ids=['0', '1'])

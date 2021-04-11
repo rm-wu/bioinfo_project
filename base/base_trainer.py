@@ -11,15 +11,16 @@ class BaseTrainer:
     def __init__(self,
                  model,
                  criterion,
-                 #metric_fnts,
+                 metric_fnts,
                  optimizer,
-                 config):
+                 scheduler,
+                 config,):
         self.config = config
-
         self.model = model
         self.criterion = criterion
-        #self.metric_fnts = metric_fnts
+        self.metric_fnts = metric_fnts
         self.optimizer = optimizer
+        self.scheduler=scheduler
 
         # TODO: make a dictionary within config['trainer'] (is a dict) with the hypParam for trainer
          # cfg_trainer = config['trainer']
@@ -30,7 +31,7 @@ class BaseTrainer:
         #self.checkpoint_dir = config['save_dir']
 
         # TODO: Tensorboard writer
-        # self.writer = Tens
+        self.writer = SummaryWriter()
         '''
         # TODO: Resume Network
         if config.resume is not None:

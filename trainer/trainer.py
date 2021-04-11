@@ -5,6 +5,7 @@ from torchvision.transforms import CenterCrop
 import torch
 
 
+
 TILE_DIM = 400
 
 
@@ -12,16 +13,18 @@ class Trainer(BaseTrainer):
     def __init__(self,
                  model,
                  criterion,
-                 #metric_fnts,
+                 metric_fnts,
                  optimizer,
+                 scheduler,
                  config,
                  train_loader,
                  device,
                  val_loader=None):
         super().__init__(model,
                          criterion,
-                         #metric_fnts,
+                         metric_fnts,
                          optimizer,
+                         scheduler,
                          config)
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -44,10 +47,20 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             output = self.model(image)
             loss = self.criterion(self.center(output), self.center(mask))
+
             metric_monitor.update("Loss", loss.item())
             loss.backward()
+
+            for metric in self.metric_fnts:
+                metric_monitor.update(metric.__name__, metric(self.center(mask), self.center(output.detach())))
+
             self.optimizer.step()
-            stream.set_description(f"Epoch: {epoch} | Train\t|{metric_monitor}")
+            self.scheduler.step()
+        stream.set_description(f"Epoch: {epoch} | Train\t|{metric_monitor}")
+
+        self.writer.add_scalar("Loss_Training", metric_monitor.return_value('Loss'), epoch)
+        for metric in self.metric_fnts:
+            self.writer.add_scalar(f"{metric.__name__}_Training", metric_monitor.return_value(metric.__name__), epoch)
 
         if self.do_validation:
             self._val_epoch(epoch)
@@ -61,5 +74,11 @@ class Trainer(BaseTrainer):
                 image, mask = image.to(self.device), mask.to(self.device)
                 output = self.model(image)
                 loss = self.criterion(self.center(output), self.center(mask))
+                print(loss.item())
                 metric_monitor.update("Loss", loss.item())
-                stream.set_description(f"Epoch: {epoch} | Validation\t|{metric_monitor}")
+                for metric in self.metric_fnts:
+                    metric_monitor.update(metric.__name__, metric(self.center(mask), self.center(output.detach())))
+        stream.set_description(f"Epoch: {epoch} | Validation\t|{metric_monitor}")
+        self.writer.add_scalar("Loss_Validation", metric_monitor.return_value('Loss'), epoch)
+        for metric in self.metric_fnts:
+            self.writer.add_scalar(f"{metric.__name__}_Training", metric_monitor.return_value(metric.__name__), epoch)
