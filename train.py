@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     # TODO: add other metrics like accuracy etc.
     # TODO: configure the optimizer/LR Scheduler and their hyperparams
-    config['val_ids'] = ['1', '2']
+    config['val_ids'] = ['1', '5']
     config['epochs'] = 10
     config['batch_size'] = 4
 
