@@ -29,7 +29,6 @@ class BaseTrainer:
         # TODO: save/resume checkpoint
         #self.save_period = config['save_period']
         #self.checkpoint_dir = config['save_dir']
-
         # TODO: Tensorboard writer
         self.writer = SummaryWriter()
         '''
