@@ -12,27 +12,38 @@ class VascularDataset(Dataset):
     """
     def __init__(self,
                  images_list,
-                 transform=None):
+                 transform=None,
+                 load_in_memory=True):
         super(VascularDataset, self).__init__()
         self.images = images_list
         self.transform = transform
+        self.load_in_memory = load_in_memory
+        if load_in_memory:
+            self._map = dict()
 
     def __len__(self):
         return len(self.images)
 
     def __getitem__(self, index):
-        img_path = str(self.images[index])
-        seg_path = img_path.replace('images', 'masks')
-        img = cv2.imread(img_path)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if self.load_in_memory and \
+                index in self._map:
+            img, seg = self._map[index]
+        else:
+            img_path = str(self.images[index])
+            seg_path = img_path.replace('images', 'masks')
+            img = cv2.imread(img_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
-        # TODO: alternativa for binarize the segmentation mask
-        seg = Image.open(seg_path)
-        seg = seg.convert('RGB')    # remove the transparent portion of the image
-        seg = seg.convert('L')      # from RGB to black and white
-        seg = seg.point(lambda x: 0 if x < 1 else 255.0, '1')
-        seg = np.array(seg, dtype=np.float)  # equivalent to a cv2 image
-        seg = np.expand_dims(seg, axis=0)
+            # TODO: alternativa for binarize the segmentation mask
+            seg = Image.open(seg_path)
+            seg = seg.convert('RGB')    # remove the transparent portion of the image
+            seg = seg.convert('L')      # from RGB to black and white
+            seg = seg.point(lambda x: 0 if x < 1 else 255.0, '1')
+            seg = np.array(seg, dtype=np.float)  # equivalent to a cv2 image
+            seg = np.expand_dims(seg, axis=0)
+
+            if self.load_in_memory:
+                self._map[index] = (img, seg)
 
         if self.transform:
             transformed = self.transform(image=img, mask=seg)
