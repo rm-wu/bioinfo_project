@@ -74,13 +74,12 @@ class Trainer(BaseTrainer):
                 image, mask = image.to(self.device), mask.to(self.device)
                 output = self.model(image)
                 loss = self.criterion(self.center(output), self.center(mask))
-                print(loss.item())
+                #print(loss.item())
                 metric_monitor.update("Loss", loss.item())
                 for metric in self.metrics:
                     metric_monitor.update(metric.__name__,
                                           metric(self.center(output),
                                                  self.center(mask)))
-
                 stream.set_description(f"Epoch: {epoch} | Validation\t|{metric_monitor}")
 
         self.writer.add_scalar("Loss_Validation", metric_monitor.return_value('Loss'), epoch)

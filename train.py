@@ -25,7 +25,8 @@ np.random.seed(SEED)
 def main(config):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     train_dataset, valid_dataset = generate_datasets(config['data_dir'],
-                                                     valid_ids=config['val_ids'])
+                                                     valid_ids=config['val_ids'],
+                                                     load_in_memory=config['load_in_memory'])
     # TODO: define and add data augmentation + image normalization
     # train_dataset.transform = train_transform
     # valid_dataset.transform = valid_transform
@@ -53,7 +54,7 @@ def main(config):
     criterion = config['criterion']
     optimizer = torch.optim.Adam(params=model.parameters(),
                                  lr=3e-4)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
     metrics = [iou_score, dice_score]
 
     trainer = Trainer(model=model,
@@ -89,19 +90,19 @@ if __name__ == '__main__':
     if colab:
         config['data_dir'] = '/content/drive/My Drive/Bioinformatics/dataset'
         config['num_workers'] = 4
-        config['RAM'] = True
+        config['load_in_memory'] = True
     else:
         config['data_dir'] = args.data
         config['num_workers'] = 1
-        config['RAM'] = False
+        config['load_in_memory'] = False
 
     # TODO: check if this loss is good
     config['criterion'] = nn.BCEWithLogitsLoss()
 
     # TODO: add other metrics like accuracy etc.
     # TODO: configure the optimizer/LR Scheduler and their hyperparams
-    config['val_ids'] = ['1']
-    config['epochs'] = 2
-    config['batch_size'] = 2
+    config['val_ids'] = ['1', '5']
+    config['epochs'] = 20
+    config['batch_size'] = 4
 
     main(config)

@@ -71,12 +71,13 @@ def gen_split(root_dir, valid_ids):
     return train_dataset, valid_dataset
 
 
-def generate_datasets(data_dir, valid_ids=None):
+def generate_datasets(data_dir, valid_ids=None, load_in_memory=True):
     """
     Function that automatically generates training and validation sets for the training phase
 
     :param data_dir: path to the data directory generated with makeDataset.py
     :param valid_ids: list of the patients to use as validation set
+    :param load_in_memory: load the images in RAM
     :return:
         if valid_ids is not None:
             train_set: VascularDataset containing the training data split
@@ -90,8 +91,10 @@ def generate_datasets(data_dir, valid_ids=None):
     if len(valid_ids) == 0:
         return VascularDataset(train_list)
     else:
-        return (VascularDataset(train_list),    # Training Set
-                VascularDataset(val_list))      # Validation Set
+        return (VascularDataset(train_list,
+                                load_in_memory=load_in_memory),    # Training Set
+                VascularDataset(val_list,
+                                load_in_memory=load_in_memory))      # Validation Set
 
 
 if __name__ == "__main__":
