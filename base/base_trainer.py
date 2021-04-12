@@ -11,24 +11,24 @@ class BaseTrainer:
     def __init__(self,
                  model,
                  criterion,
-                 metric_fnts,
+                 metrics,
                  optimizer,
                  scheduler,
-                 config,):
+                 config, ):
         self.config = config
         self.model = model
         self.criterion = criterion
-        self.metric_fnts = metric_fnts
+        self.metrics = metrics
         self.optimizer = optimizer
-        self.scheduler=scheduler
+        self.scheduler = scheduler
 
         # TODO: make a dictionary within config['trainer'] (is a dict) with the hypParam for trainer
-         # cfg_trainer = config['trainer']
+        # cfg_trainer = config['trainer']
         self.epochs = config['epochs']
 
         # TODO: save/resume checkpoint
-        #self.save_period = config['save_period']
-        #self.checkpoint_dir = config['save_dir']
+        # self.save_period = config['save_period']
+        # self.checkpoint_dir = config['save_dir']
         # TODO: Tensorboard writer
         self.writer = SummaryWriter()
         '''

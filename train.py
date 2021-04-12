@@ -12,8 +12,7 @@ from model.UNet import UNet
 from dataset import generate_datasets
 from trainer import Trainer
 
-from utils import iou
-from utils import dice
+from model.metrics import dice_score, iou_score
 
 # fix random seeds for reproducibility
 SEED = 42
@@ -21,6 +20,7 @@ torch.manual_seed(SEED)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 np.random.seed(SEED)
+
 
 def main(config):
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -31,7 +31,7 @@ def main(config):
     # valid_dataset.transform = valid_transform
     transforms = A.Compose(
         [
-            A.Normalize(), # TODO: change values
+            A.Normalize(),  # TODO: change values
             ToTensorV2()
         ]
     )
@@ -53,12 +53,12 @@ def main(config):
     criterion = config['criterion']
     optimizer = torch.optim.Adam(params=model.parameters(),
                                  lr=3e-4)
-    scheduler=torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
-    metric_fnts=[iou, dice]
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.5)
+    metrics = [iou_score, dice_score]
 
     trainer = Trainer(model=model,
                       criterion=criterion,
-                      metric_fnts=metric_fnts,
+                      metrics=metrics,
                       optimizer=optimizer,
                       scheduler=scheduler,
                       config=config,
@@ -69,6 +69,7 @@ def main(config):
 
     return model
 
+
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description="Biomedical Image Segmentation with UNet and HQA")
     '''
@@ -77,6 +78,8 @@ if __name__ == '__main__':
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to the latest checkpoint (default:None)')
     '''
+    args.add_argument('-d', '--data', type=str,
+                      help='Data path')
     args.add_argument('--colab', action='store_true')
     args = args.parse_args()
     colab = args.colab
@@ -86,9 +89,11 @@ if __name__ == '__main__':
     if colab:
         config['data_dir'] = '/content/drive/My Drive/Bioinformatics/dataset'
         config['num_workers'] = 4
+        config['RAM'] = True
     else:
-        config['data_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dataset'
+        config['data_dir'] = args.data
         config['num_workers'] = 1
+        config['RAM'] = False
 
     # TODO: check if this loss is good
     config['criterion'] = nn.BCEWithLogitsLoss()

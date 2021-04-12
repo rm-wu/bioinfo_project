@@ -4,8 +4,6 @@ from tqdm import tqdm
 from torchvision.transforms import CenterCrop
 import torch
 
-
-
 TILE_DIM = 400
 
 
@@ -13,7 +11,7 @@ class Trainer(BaseTrainer):
     def __init__(self,
                  model,
                  criterion,
-                 metric_fnts,
+                 metrics,
                  optimizer,
                  scheduler,
                  config,
@@ -22,7 +20,7 @@ class Trainer(BaseTrainer):
                  val_loader=None):
         super().__init__(model,
                          criterion,
-                         metric_fnts,
+                         metrics,
                          optimizer,
                          scheduler,
                          config)
@@ -32,7 +30,6 @@ class Trainer(BaseTrainer):
         self.device = device
         # Crop only the central part of the tile that we want to predict
         self.center = CenterCrop(TILE_DIM)
-
 
     def _train_epoch(self, epoch):
         # TODO: epoch is for logging purposes, add this part
@@ -51,16 +48,19 @@ class Trainer(BaseTrainer):
             metric_monitor.update("Loss", loss.item())
             loss.backward()
 
-            for metric in self.metric_fnts:
-                metric_monitor.update(metric.__name__, metric(self.center(mask), self.center(output.detach())))
+            for metric in self.metrics:
+                metric_monitor.update(metric.__name__,
+                                      metric(self.center(output),
+                                             self.center(mask)))
 
             self.optimizer.step()
             self.scheduler.step()
-        stream.set_description(f"Epoch: {epoch} | Train\t|{metric_monitor}")
+            stream.set_description(f"Epoch: {epoch} | Train\t|{metric_monitor}")
 
         self.writer.add_scalar("Loss_Training", metric_monitor.return_value('Loss'), epoch)
-        for metric in self.metric_fnts:
-            self.writer.add_scalar(f"{metric.__name__}_Training", metric_monitor.return_value(metric.__name__), epoch)
+        for metric in self.metrics:
+            self.writer.add_scalar(f"{metric.__name__}_Training",
+                                   metric_monitor.return_value(metric.__name__), epoch)
 
         if self.do_validation:
             self._val_epoch(epoch)
@@ -76,9 +76,14 @@ class Trainer(BaseTrainer):
                 loss = self.criterion(self.center(output), self.center(mask))
                 print(loss.item())
                 metric_monitor.update("Loss", loss.item())
-                for metric in self.metric_fnts:
-                    metric_monitor.update(metric.__name__, metric(self.center(mask), self.center(output.detach())))
-        stream.set_description(f"Epoch: {epoch} | Validation\t|{metric_monitor}")
+                for metric in self.metrics:
+                    metric_monitor.update(metric.__name__,
+                                          metric(self.center(output),
+                                                 self.center(mask)))
+
+                stream.set_description(f"Epoch: {epoch} | Validation\t|{metric_monitor}")
+
         self.writer.add_scalar("Loss_Validation", metric_monitor.return_value('Loss'), epoch)
-        for metric in self.metric_fnts:
-            self.writer.add_scalar(f"{metric.__name__}_Training", metric_monitor.return_value(metric.__name__), epoch)
+        for metric in self.metrics:
+            self.writer.add_scalar(f"{metric.__name__}_Validation",
+                                   metric_monitor.return_value(metric.__name__), epoch)
