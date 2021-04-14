@@ -13,7 +13,7 @@ class Trainer(BaseTrainer):
                  criterion,
                  metrics,
                  optimizer,
-                 scheduler,
+                 lr_scheduler,
                  config,
                  train_loader,
                  device,
@@ -22,7 +22,7 @@ class Trainer(BaseTrainer):
                          criterion,
                          metrics,
                          optimizer,
-                         scheduler,
+                         lr_scheduler,
                          config)
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -54,8 +54,10 @@ class Trainer(BaseTrainer):
                                              self.center(mask)))
 
             self.optimizer.step()
-            self.scheduler.step()
             stream.set_description(f"Epoch: {epoch} | Train\t|{metric_monitor}")
+
+        if self.lr_scheduler is not None:
+            self.lr_scheduler.step()
 
         self.writer.add_scalar("Loss_Training", metric_monitor.return_value('Loss'), epoch)
         for metric in self.metrics:
