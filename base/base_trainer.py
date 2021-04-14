@@ -1,7 +1,7 @@
 import torch
 from tensorboardX import SummaryWriter
 from abc import abstractmethod
-
+from utils import MetricMonitor
 
 class BaseTrainer:
     """
@@ -13,14 +13,14 @@ class BaseTrainer:
                  criterion,
                  metrics,
                  optimizer,
-                 scheduler,
+                 lr_scheduler,
                  config, ):
         self.config = config
         self.model = model
         self.criterion = criterion
         self.metrics = metrics
         self.optimizer = optimizer
-        self.scheduler = scheduler
+        self.lr_scheduler = lr_scheduler
 
         # TODO: make a dictionary within config['trainer'] (is a dict) with the hypParam for trainer
         # cfg_trainer = config['trainer']
