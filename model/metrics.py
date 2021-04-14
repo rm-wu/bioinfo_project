@@ -1,8 +1,12 @@
 import torch
 
+# TODO: usare una sola chiamata a sigmoid per entrambe le metriche
 
 def iou_score(prediction, target):
     with torch.no_grad():
+        prediction = torch.sigmoid(prediction)
+        prediction = (prediction > 0.5).float()
+
         iou_score_total = 0
         for act, pred in zip(target, prediction):
             intersection = torch.logical_and(act, pred)
@@ -13,6 +17,9 @@ def iou_score(prediction, target):
 
 def dice_score(prediction, target):
     with torch.no_grad():
+        prediction = torch.sigmoid(prediction)
+        prediction = (prediction > 0.5).float()
+
         dice_total = 0
         for act, pred in zip(target, prediction):
             intersection = torch.sum(torch.logical_and(act, pred))
