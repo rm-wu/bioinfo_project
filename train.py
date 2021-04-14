@@ -61,7 +61,7 @@ def main(config):
                       criterion=criterion,
                       metrics=metrics,
                       optimizer=optimizer,
-                      scheduler=scheduler,
+                      lr_scheduler=scheduler,
                       config=config,
                       train_loader=train_loader,
                       val_loader=valid_loader,
