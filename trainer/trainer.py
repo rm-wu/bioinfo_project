@@ -77,8 +77,7 @@ class Trainer(BaseTrainer):
                 #print(loss.item())
                 metric_monitor.update("Loss", loss.item())
                 for metric in self.metrics:
-                    metric_monitor.update(metric.__name__,
-                                          metric(self.center(output),
+                    metric_monitor.update(metric.__name__,   metric(self.center(output),
                                                  self.center(mask)))
                 stream.set_description(f"Epoch: {epoch} | Validation\t|{metric_monitor}")
 
@@ -86,3 +85,4 @@ class Trainer(BaseTrainer):
         for metric in self.metrics:
             self.writer.add_scalar(f"{metric.__name__}_Validation",
                                    metric_monitor.return_value(metric.__name__), epoch)
+        return metric_monitor.return_value(self.mnt_metric)

@@ -92,7 +92,8 @@ if __name__ == '__main__':
         config['num_workers'] = 4
         config['load_in_memory'] = True
     else:
-        config['data_dir'] = args.data
+        # CHANGE BEFORE PUSHING
+        config['data_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dataset'
         config['num_workers'] = 1
         config['load_in_memory'] = False
 
@@ -101,8 +102,13 @@ if __name__ == '__main__':
 
     # TODO: add other metrics like accuracy etc.
     # TODO: configure the optimizer/LR Scheduler and their hyperparams
-    config['val_ids'] = ['1', '5']
-    config['epochs'] = 20
+
+    # CHANGE BEFORE PUSHING
+    #config['val_ids'] = ['1', '5']
+    config['val_ids'] = ['1']
+    config['epochs'] = 2
     config['batch_size'] = 4
+    config['trainer']={'monitor':'min Loss'}
+    config['save_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/dir/'
 
     main(config)
