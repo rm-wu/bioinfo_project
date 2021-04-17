@@ -5,6 +5,7 @@ from tensorboardX import SummaryWriter
 from abc import abstractmethod
 #from utils import update
 
+from utils import MetricMonitor
 
 class BaseTrainer:
     """
@@ -16,14 +17,14 @@ class BaseTrainer:
                  criterion,
                  metrics,
                  optimizer,
-                 scheduler,
+                 lr_scheduler,
                  config, ):
         self.config = config
         self.model = model
         self.criterion = criterion
         self.metrics = metrics
         self.optimizer = optimizer
-        self.scheduler = scheduler
+        self.lr_scheduler = lr_scheduler
 
         cfg_trainer = config['trainer']
         self.epochs = config['epochs']
@@ -61,7 +62,7 @@ class BaseTrainer:
     @abstractmethod
     def _train_epoch(self, epoch):
         """
-        Train logic for an epochp
+        Train logic for an epoch
 
         :param epoch: Current epoch number
         :return: None
