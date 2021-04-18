@@ -23,10 +23,15 @@ np.random.seed(SEED)
 
 
 def main(config):
+
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     train_dataset, valid_dataset = generate_datasets(config['data_dir'],
                                                      valid_ids=config['val_ids'],
                                                      load_in_memory=config['load_in_memory'])
+
+    print(f'Length of training dataset: {len(train_dataset)}')
+    print(f'Length of training dataset: {len(valid_dataset)}')
+
     # TODO: define and add data augmentation + image normalization
     # train_dataset.transform = train_transform
     # valid_dataset.transform = valid_transform
@@ -53,7 +58,7 @@ def main(config):
 
     criterion = config['criterion']
     optimizer = torch.optim.Adam(params=model.parameters(),
-                                 lr=3e-4)
+                                 lr=0)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
     metrics = [iou_score, dice_score]
 
@@ -67,7 +72,6 @@ def main(config):
                       val_loader=valid_loader,
                       device=device)
     trainer.train()
-
     return model
 
 
@@ -93,7 +97,7 @@ if __name__ == '__main__':
         config['load_in_memory'] = True
     else:
         # CHANGE BEFORE PUSHING
-        config['data_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dataset'
+        config['data_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dataset/'
         config['num_workers'] = 1
         config['load_in_memory'] = False
 
@@ -106,9 +110,10 @@ if __name__ == '__main__':
     # CHANGE BEFORE PUSHING
     #config['val_ids'] = ['1', '5']
     config['val_ids'] = ['1']
-    config['epochs'] = 2
+    config['epochs'] = 1
     config['batch_size'] = 4
     config['trainer']={'monitor':'min Loss'}
-    config['save_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/dir/'
+    config['save_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/dir'
+    config['tensorboard_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/tensorboard'
 
     main(config)

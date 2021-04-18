@@ -4,7 +4,7 @@ import torch
 from tensorboardX import SummaryWriter
 from abc import abstractmethod
 #from utils import update
-
+import os
 from utils import MetricMonitor
 
 class BaseTrainer:
@@ -31,6 +31,16 @@ class BaseTrainer:
         #self.save_period = cfg_trainer['save_period']
         self.monitor = cfg_trainer.get('monitor', 'off')
         self.checkpoint_dir = config['save_dir']
+        self.tensorboard_dir=config['tensorboard_dir']
+
+        id_folder=0
+        list_folders=os.listdir(self.checkpoint_dir)
+        if len(list_folders)>0:
+            max=0
+            for folder in list_folders:
+                if int(folder)>max:
+                    max=int(folder)
+        os.mkdir(self.checkpoint_dir+f'/{id_folder}')
 
         # configuration to monitor model performance and save best
         if self.monitor == 'off':
@@ -53,7 +63,8 @@ class BaseTrainer:
         # self.save_period = config['save_period']
         # self.checkpoint_dir = config['save_dir']
         # TODO: Tensorboard writer
-        self.writer = SummaryWriter()
+        os.mkdir(self.tensorboard_dir+f'/{id_folder}')
+        self.writer = SummaryWriter(self.tensorboard_dir+f'/{id_folder}')
         '''
         # TODO: Resume Network
         if config.resume is not None:
@@ -72,6 +83,7 @@ class BaseTrainer:
     def train(self):
         for epoch in range(self.config['epochs']):
             result = self._train_epoch(epoch)
+            print('result')
             print(result)
             # TODO:     1) log the results
             #           2) save_checkpoint
@@ -79,7 +91,6 @@ class BaseTrainer:
 
             log = {'epoch': epoch}
             log[self.mnt_metric]=result
-            #log.update(result)
 
             #for key, value in log.items():
             #    self.logger.info('    {:15s}: {}'.format(str(key), value))
@@ -97,8 +108,11 @@ class BaseTrainer:
                     improved = False
 
                 if improved:
+                    print('IMPROVED')
                     self.mnt_best = log[self.mnt_metric]
                     best = True
+                else:
+                    print('NOT IMPROVED')
 
             self._save_checkpoint(epoch, save_best=best)
 
@@ -118,11 +132,11 @@ class BaseTrainer:
             'monitor_best': self.mnt_best,
             'config': self.config
         }
-        filename = str(self.checkpoint_dir + 'checkpoint-epoch{}.pth'.format(epoch))
+        filename = str(self.checkpoint_dir + '/checkpoint-epoch{}.pth'.format(epoch))
         torch.save(state, filename)
         #self.logger.info("Saving checkpoint: {} ...".format(filename))
         if save_best:
-            best_path = str(self.checkpoint_dir / 'model_best.pth')
+            best_path = str(self.checkpoint_dir + '/model_best.pth')
             torch.save(state, best_path)
             print('saving current best: model_best.pth')
             #self.logger.info("Saving current best: model_best.pth ...")

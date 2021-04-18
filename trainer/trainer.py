@@ -65,7 +65,7 @@ class Trainer(BaseTrainer):
                                    metric_monitor.return_value(metric.__name__), epoch)
 
         if self.do_validation:
-            self._val_epoch(epoch)
+            return self._val_epoch(epoch)
 
     def _val_epoch(self, epoch):
         self.model.eval()
@@ -73,7 +73,9 @@ class Trainer(BaseTrainer):
         metric_monitor = MetricMonitor()
         with torch.no_grad():
             for batch_idx, (image, mask) in enumerate(stream):
+
                 image, mask = image.to(self.device), mask.to(self.device)
+
                 output = self.model(image)
                 loss = self.criterion(self.center(output), self.center(mask))
                 #print(loss.item())
@@ -87,4 +89,4 @@ class Trainer(BaseTrainer):
         for metric in self.metrics:
             self.writer.add_scalar(f"{metric.__name__}_Validation",
                                    metric_monitor.return_value(metric.__name__), epoch)
-        return metric_monitor.return_value(self.mnt_metric)
+        return metric_monitor.return_value(str(self.mnt_metric))

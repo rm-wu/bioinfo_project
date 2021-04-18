@@ -63,8 +63,10 @@ def gen_split(root_dir, valid_ids):
     valid_dataset = []
     # extract all the folder related to patients, i.e. root_dir/Train/cancer_type/patient
     patients = sorted(Path(root_dir).glob("Train/images/[!.]*"))
+
     for patient in patients:
-        if str(patient).split("/")[-1] in valid_ids:
+        print(str(patient).split('\\')[-1])
+        if str(patient).split("\\")[-1] in valid_ids:
             valid_dataset += sorted(Path(patient).glob('*'))
         else:
             train_dataset += sorted(Path(patient).glob('*'))
@@ -88,6 +90,10 @@ def generate_datasets(data_dir, valid_ids=None, load_in_memory=True):
     if valid_ids is None:
         valid_ids = []
     train_list, val_list = gen_split(data_dir, valid_ids)
+    print('val_list')
+    print(val_list)
+    print('valid_ids')
+    print(valid_ids)
     if len(valid_ids) == 0:
         return VascularDataset(train_list)
     else:
@@ -95,6 +101,7 @@ def generate_datasets(data_dir, valid_ids=None, load_in_memory=True):
                                 load_in_memory=load_in_memory),    # Training Set
                 VascularDataset(val_list,
                                 load_in_memory=load_in_memory))      # Validation Set
+
 
 
 if __name__ == "__main__":
