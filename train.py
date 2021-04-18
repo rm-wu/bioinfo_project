@@ -56,6 +56,9 @@ def main(config):
     model = UNet()
     model = model.to(device)
 
+    if config['load_model'] is not None:
+        model.load_state_dict(torch.load(config['load_model']))
+
     criterion = config['criterion']
     optimizer = torch.optim.Adam(params=model.parameters(),
                                  lr=5-4)
@@ -114,7 +117,8 @@ if __name__ == '__main__':
     config['epochs'] = 3
     config['batch_size'] = 4
     config['trainer']={'monitor':'max dice_score'}
-    config['save_dir']='/content/drive/My Drive/Bioinformatics/bioinfo_project/runs'
+    config['save_dir']='/content/drive/My Drive/Bioinformatics/bioinfo_project/checkpoints'
+    config['load_model']=None
     #config['tensorboard_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/tensorboard'
 
     main(config)

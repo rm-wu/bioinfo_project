@@ -65,8 +65,8 @@ def gen_split(root_dir, valid_ids):
     patients = sorted(Path(root_dir).glob("Train/images/[!.]*"))
 
     for patient in patients:
-        print(str(patient).split('\\')[-1])
-        if str(patient).split("\\")[-1] in valid_ids:
+        #if str(patient).split("\\")[-1] in valid_ids:
+        if str(patient).split("/")[-1] in valid_ids:
             valid_dataset += sorted(Path(patient).glob('*'))
         else:
             train_dataset += sorted(Path(patient).glob('*'))
