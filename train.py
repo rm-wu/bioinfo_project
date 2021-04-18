@@ -58,7 +58,7 @@ def main(config):
 
     criterion = config['criterion']
     optimizer = torch.optim.Adam(params=model.parameters(),
-                                 lr=0)
+                                 lr=5-4)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
     metrics = [iou_score, dice_score]
 
@@ -97,7 +97,8 @@ if __name__ == '__main__':
         config['load_in_memory'] = True
     else:
         # CHANGE BEFORE PUSHING
-        config['data_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dataset/'
+        #config['data_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dataset/'
+        config['data_dir']=args.data
         config['num_workers'] = 1
         config['load_in_memory'] = False
 
@@ -108,12 +109,12 @@ if __name__ == '__main__':
     # TODO: configure the optimizer/LR Scheduler and their hyperparams
 
     # CHANGE BEFORE PUSHING
-    #config['val_ids'] = ['1', '5']
-    config['val_ids'] = ['1']
-    config['epochs'] = 1
+    config['val_ids'] = ['1', '5']
+    #config['val_ids'] = ['1']
+    config['epochs'] = 3
     config['batch_size'] = 4
-    config['trainer']={'monitor':'min Loss'}
-    config['save_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/dir'
-    config['tensorboard_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/tensorboard'
+    config['trainer']={'monitor':'max dice_score'}
+    config['save_dir']='/content/drive/My Drive/Bioinformatics/bioinfo_project/runs'
+    #config['tensorboard_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/tensorboard'
 
     main(config)

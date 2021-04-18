@@ -31,7 +31,7 @@ class BaseTrainer:
         #self.save_period = cfg_trainer['save_period']
         self.monitor = cfg_trainer.get('monitor', 'off')
         self.checkpoint_dir = config['save_dir']
-        self.tensorboard_dir=config['tensorboard_dir']
+        #self.tensorboard_dir=config['tensorboard_dir']
 
         id_folder=0
         list_folders=os.listdir(self.checkpoint_dir)
@@ -40,7 +40,10 @@ class BaseTrainer:
             for folder in list_folders:
                 if int(folder)>max:
                     max=int(folder)
-        os.mkdir(self.checkpoint_dir+f'/{id_folder}')
+            id_folder=max+1
+
+        self.checkpoint_dir = self.checkpoint_dir + f'/{id_folder}'
+        os.mkdir(self.checkpoint_dir)
 
         # configuration to monitor model performance and save best
         if self.monitor == 'off':
@@ -63,8 +66,7 @@ class BaseTrainer:
         # self.save_period = config['save_period']
         # self.checkpoint_dir = config['save_dir']
         # TODO: Tensorboard writer
-        os.mkdir(self.tensorboard_dir+f'/{id_folder}')
-        self.writer = SummaryWriter(self.tensorboard_dir+f'/{id_folder}')
+        self.writer = SummaryWriter(comment='-'+str(id_folder))
         '''
         # TODO: Resume Network
         if config.resume is not None:
@@ -83,8 +85,7 @@ class BaseTrainer:
     def train(self):
         for epoch in range(self.config['epochs']):
             result = self._train_epoch(epoch)
-            print('result')
-            print(result)
+
             # TODO:     1) log the results
             #           2) save_checkpoint
             #           3) resume_from_checkpoint
@@ -92,18 +93,13 @@ class BaseTrainer:
             log = {'epoch': epoch}
             log[self.mnt_metric]=result
 
-            #for key, value in log.items():
-            #    self.logger.info('    {:15s}: {}'.format(str(key), value))
-
             best = False
             if self.mnt_mode != 'off':
                 try:
-                    # check whether model performance improved or not, according to specified metric(mnt_metric)
                     improved = (self.mnt_mode == 'min' and log[self.mnt_metric] <= self.mnt_best) or \
                                (self.mnt_mode == 'max' and log[self.mnt_metric] >= self.mnt_best)
                 except KeyError:
-                    #self.logger.warning("Warning: Metric '{}' is not found. "
-                    #                    "Model performance monitoring is disabled.".format(self.mnt_metric))
+
                     self.mnt_mode = 'off'
                     improved = False
 
@@ -134,9 +130,8 @@ class BaseTrainer:
         }
         filename = str(self.checkpoint_dir + '/checkpoint-epoch{}.pth'.format(epoch))
         torch.save(state, filename)
-        #self.logger.info("Saving checkpoint: {} ...".format(filename))
+
         if save_best:
             best_path = str(self.checkpoint_dir + '/model_best.pth')
             torch.save(state, best_path)
             print('saving current best: model_best.pth')
-            #self.logger.info("Saving current best: model_best.pth ...")
