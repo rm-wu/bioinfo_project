@@ -6,7 +6,7 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 import numpy as np
-import argparse
+from parser import parse_arguments
 
 from model.UNet import UNet
 from dataset import generate_datasets
@@ -76,45 +76,5 @@ def main(config):
 
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description="Biomedical Image Segmentation with UNet and HQA")
-    '''
-    args.add_argument('-c', '--config', default=None, type=str,
-                      help='config file path (default:None)')
-    args.add_argument('-r', '--resume', default=None, type=str,
-                      help='path to the latest checkpoint (default:None)')
-    '''
-    args.add_argument('-d', '--data', type=str,
-                      help='Data path')
-    args.add_argument('--colab', action='store_true')
-    args = args.parse_args()
-    colab = args.colab
-    # TODO: args --> config or json file
-
-    config = dict()
-    if colab:
-        config['data_dir'] = '/content/drive/My Drive/Bioinformatics/dataset'
-        config['num_workers'] = 4
-        config['load_in_memory'] = True
-    else:
-        # CHANGE BEFORE PUSHING
-        #config['data_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dataset/'
-        config['data_dir']=args.data
-        config['num_workers'] = 1
-        config['load_in_memory'] = False
-
-    # TODO: check if this loss is good
-    config['criterion'] = nn.BCEWithLogitsLoss()
-
-    # TODO: add other metrics like accuracy etc.
-    # TODO: configure the optimizer/LR Scheduler and their hyperparams
-
-    # CHANGE BEFORE PUSHING
-    config['val_ids'] = ['1', '5']
-    #config['val_ids'] = ['1']
-    config['epochs'] = 3
-    config['batch_size'] = 4
-    config['trainer']={'monitor':'max dice_score'}
-    config['save_dir']='/content/drive/My Drive/Bioinformatics/bioinfo_project/runs'
-    #config['tensorboard_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/tensorboard'
-
+    config = parse_arguments()
     main(config)
