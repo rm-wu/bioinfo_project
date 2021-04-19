@@ -3,6 +3,7 @@ from pathlib import Path
 import cv2
 from PIL import Image
 import numpy as np
+import os
 
 
 class VascularDataset(Dataset):
@@ -62,11 +63,11 @@ def gen_split(root_dir, valid_ids):
     train_dataset = []
     valid_dataset = []
     # extract all the folder related to patients, i.e. root_dir/Train/cancer_type/patient
-    patients = sorted(Path(root_dir).glob("Train/images/[!.]*"))
+    train_images = "Train" + os.sep + "images" + os.sep + "[!.]*"
+    patients = sorted(Path(root_dir).glob(train_images))
 
     for patient in patients:
-        print(str(patient).split('\\')[-1])
-        if str(patient).split("\\")[-1] in valid_ids:
+        if str(patient).split(os.sep)[-1] in valid_ids:
             valid_dataset += sorted(Path(patient).glob('*'))
         else:
             train_dataset += sorted(Path(patient).glob('*'))
