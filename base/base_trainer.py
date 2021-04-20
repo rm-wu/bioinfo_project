@@ -33,7 +33,8 @@ class BaseTrainer:
         self.checkpoint_dir = config['save_dir']
         #self.tensorboard_dir=config['tensorboard_dir']
 
-        id_folder = max(os.listdir(self.checkpoint_dir), default=0) + 1
+        list_ids=[int(x) for x in os.listdir(self.checkpoint_dir)]
+        id_folder = max(list_ids, default=0) + 1
         print(id_folder)
 
         self.checkpoint_dir = self.checkpoint_dir + f'/{id_folder}'

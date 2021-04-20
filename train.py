@@ -6,7 +6,7 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 import numpy as np
-from parser import parse_arguments
+from myparser import parse_arguments
 
 from model.UNet import UNet
 from dataset import generate_datasets
@@ -55,6 +55,10 @@ def main(config):
                               )
     model = UNet()
     model = model.to(device)
+
+    if 'load_model' in config:
+        model.load_state_dict(torch.load(config['load_model'])['state_dict'])
+        print('Loaded model correctly')
 
     criterion = config['criterion']
     optimizer = torch.optim.Adam(params=model.parameters(),

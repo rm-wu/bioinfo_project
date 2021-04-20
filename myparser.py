@@ -12,7 +12,6 @@ def parse_arguments():
     args.add_argument('-r', '--resume', default=None, type=str,
                       help='path to the latest checkpoint (default:None)')
     '''
-
     args.add_argument('-d', '--data', type=str,
                       help='Data path')
     args.add_argument('--colab', action='store_true')
@@ -46,9 +45,8 @@ def parse_arguments():
         config['num_workers'] = 1
         config['load_in_memory'] = False
         config['val_ids'] = ['1']
-        # conig['save_dir'] = ???
+        config['save_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dir'
         # config['tensorboard_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/tensorboard'
-
     #################################################
     #           Local OPTIONS                       #
     #   Change if necessary                         #
@@ -65,7 +63,9 @@ def parse_arguments():
 
     # TODO: add other metrics like accuracy etc.
     # TODO: configure the optimizer/LR Scheduler and their hyperparams
-    config['epochs'] = 3
+    config['epochs'] = 2
     config['batch_size'] = 4
     config['trainer'] = {'monitor': 'max dice_score'}
+    config['load_model']='C:/Users/emanu/Documents/Polito/Bioinformatics/dir/1/checkpoint-epoch1.pth'
+
     return config
