@@ -46,10 +46,11 @@ def parse_arguments():
         config['num_workers'] = 1
         config['load_in_memory'] = False
         config['val_ids'] = ['1']
+        # conig['save_dir'] = ???
         # config['tensorboard_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/tensorboard'
 
     #################################################
-    #           Loavl OPTIONS                       #
+    #           Local OPTIONS                       #
     #   Change if necessary                         #
     #################################################
     else:
@@ -57,6 +58,7 @@ def parse_arguments():
         config['num_workers'] = 1
         config['load_in_memory'] = False
         config['val_ids'] = ['1', '5']
+        config['save_dir'] = './runs'
 
     # TODO: check if this loss is good
     config['criterion'] = nn.BCEWithLogitsLoss()

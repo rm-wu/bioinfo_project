@@ -91,10 +91,6 @@ def generate_datasets(data_dir, valid_ids=None, load_in_memory=True):
     if valid_ids is None:
         valid_ids = []
     train_list, val_list = gen_split(data_dir, valid_ids)
-    print('val_list')
-    print(val_list)
-    print('valid_ids')
-    print(valid_ids)
     if len(valid_ids) == 0:
         return VascularDataset(train_list)
     else:

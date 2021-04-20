@@ -33,14 +33,8 @@ class BaseTrainer:
         self.checkpoint_dir = config['save_dir']
         #self.tensorboard_dir=config['tensorboard_dir']
 
-        id_folder=0
-        list_folders=os.listdir(self.checkpoint_dir)
-        if len(list_folders)>0:
-            max=0
-            for folder in list_folders:
-                if int(folder)>max:
-                    max=int(folder)
-            id_folder=max+1
+        id_folder = max(os.listdir(self.checkpoint_dir), default=0) + 1
+        print(id_folder)
 
         self.checkpoint_dir = self.checkpoint_dir + f'/{id_folder}'
         os.mkdir(self.checkpoint_dir)
