@@ -53,28 +53,38 @@ class VascularDataset(Dataset):
         return img, seg
 
 
-def gen_split(root_dir, valid_ids):
+def gen_split(root_dir, valid_ids, train_or_test='Train'):
     """
 
     :param root_dir:
     :param valid_ids:
     :return:
     """
-    train_dataset = []
-    valid_dataset = []
-    # extract all the folder related to patients, i.e. root_dir/Train/cancer_type/patient
-    train_images = "Train" + os.sep + "images" + os.sep + "[!.]*"
-    patients = sorted(Path(root_dir).glob(train_images))
+    if train_or_test=='Train':
+        train_dataset = []
+        valid_dataset = []
+        # extract all the folder related to patients, i.e. root_dir/Train/cancer_type/patient
+        train_images = "Train" + os.sep + "images" + os.sep + "[!.]*"
+        patients = sorted(Path(root_dir).glob(train_images))
 
-    for patient in patients:
-        if str(patient).split(os.sep)[-1] in valid_ids:
-            valid_dataset += sorted(Path(patient).glob('*'))
-        else:
-            train_dataset += sorted(Path(patient).glob('*'))
-    return train_dataset, valid_dataset
+        for patient in patients:
+            if str(patient).split(os.sep)[-1] in valid_ids:
+                valid_dataset += sorted(Path(patient).glob('*'))
+            else:
+                train_dataset += sorted(Path(patient).glob('*'))
+        return train_dataset, valid_dataset
+
+    elif train_or_test=='Test':
+        test_dataset = []
+        # extract all the folder related to patients, i.e. root_dir/Train/cancer_type/patient
+        test_images = "Test" + os.sep + "images" + os.sep + "[!.]*"
+        patients = sorted(Path(root_dir).glob(test_images))
+        for patient in patients:
+            test_dataset+=sorted(Path(patient).glob('*'))
+        return test_dataset
 
 
-def generate_datasets(data_dir, valid_ids=None, load_in_memory=True):
+def generate_datasets(data_dir, train_or_test, valid_ids=None, load_in_memory=True):
     """
     Function that automatically generates training and validation sets for the training phase
 
@@ -90,14 +100,20 @@ def generate_datasets(data_dir, valid_ids=None, load_in_memory=True):
     """
     if valid_ids is None:
         valid_ids = []
-    train_list, val_list = gen_split(data_dir, valid_ids)
-    if len(valid_ids) == 0:
-        return VascularDataset(train_list)
-    else:
-        return (VascularDataset(train_list,
-                                load_in_memory=load_in_memory),    # Training Set
-                VascularDataset(val_list,
-                                load_in_memory=load_in_memory))      # Validation Set
+
+    if train_or_test=='Train':
+        train_list, val_list = gen_split(data_dir, valid_ids,  train_or_test)
+        if len(valid_ids) == 0:
+            return VascularDataset(train_list)
+        else:
+            return (VascularDataset(train_list,
+                                    load_in_memory=load_in_memory),  # Training Set
+                    VascularDataset(val_list,
+                                    load_in_memory=load_in_memory))
+    elif train_or_test=='Test':
+        test_list = gen_split(data_dir,valid_ids, train_or_test)
+        print(test_list)
+        return VascularDataset(test_list, load_in_memory=load_in_memory)
 
 
 

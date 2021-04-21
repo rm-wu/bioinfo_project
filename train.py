@@ -25,7 +25,7 @@ np.random.seed(SEED)
 def main(config):
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    train_dataset, valid_dataset = generate_datasets(config['data_dir'],
+    train_dataset, valid_dataset = generate_datasets(config['data_dir'], train_or_test='Train',
                                                      valid_ids=config['val_ids'],
                                                      load_in_memory=config['load_in_memory'])
 

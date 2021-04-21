@@ -46,6 +46,7 @@ def parse_arguments():
         config['load_in_memory'] = False
         config['val_ids'] = ['1']
         config['save_dir'] = 'C:/Users/emanu/Documents/Polito/Bioinformatics/dir'
+        config['save_test_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/test/'
         # config['tensorboard_dir']='C:/Users/emanu/Documents/Polito/Bioinformatics/tensorboard'
     #################################################
     #           Local OPTIONS                       #
