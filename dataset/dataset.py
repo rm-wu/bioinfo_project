@@ -4,7 +4,8 @@ import cv2
 from PIL import Image
 import numpy as np
 import os
-
+import albumentations as A
+from albumentations.pytorch.transforms import ToTensorV2
 
 class VascularDataset(Dataset):
     """
@@ -17,7 +18,13 @@ class VascularDataset(Dataset):
                  load_in_memory=True):
         super(VascularDataset, self).__init__()
         self.images = images_list
-        self.transform = transform
+        self.image_transform = A.Compose(
+        [
+            A.Normalize(),
+            ToTensorV2()
+        ])
+        self.transform=transform
+        self.ToTensor=A.Compose([ToTensorV2()])
         self.load_in_memory = load_in_memory
         if load_in_memory:
             self._map = dict()
@@ -33,7 +40,7 @@ class VascularDataset(Dataset):
             img_path = str(self.images[index])
             seg_path = img_path.replace('images', 'masks')
             img = cv2.imread(img_path)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)/255
 
             # TODO: alternativa for binarize the segmentation mask
             seg = Image.open(seg_path)
@@ -49,8 +56,11 @@ class VascularDataset(Dataset):
         if self.transform:
             transformed = self.transform(image=img, mask=seg)
             img = transformed['image']
-            seg = transformed['mask']
-        return img, seg
+            seg=transformed['mask']
+
+        image = self.image_transform(image=img)['image']
+
+        return image, seg
 
 
 def gen_split(root_dir, valid_ids, train_or_test='Train'):
@@ -84,7 +94,7 @@ def gen_split(root_dir, valid_ids, train_or_test='Train'):
         return test_dataset
 
 
-def generate_datasets(data_dir, train_or_test, valid_ids=None, load_in_memory=True):
+def generate_datasets(data_dir, train_or_test, valid_ids=None, load_in_memory=True, train_transform=None):
     """
     Function that automatically generates training and validation sets for the training phase
 
@@ -100,22 +110,18 @@ def generate_datasets(data_dir, train_or_test, valid_ids=None, load_in_memory=Tr
     """
     if valid_ids is None:
         valid_ids = []
-
     if train_or_test=='Train':
         train_list, val_list = gen_split(data_dir, valid_ids,  train_or_test)
         if len(valid_ids) == 0:
-            return VascularDataset(train_list)
+            return VascularDataset(train_list, load_in_memory=load_in_memory, transform=train_transform)
         else:
             return (VascularDataset(train_list,
-                                    load_in_memory=load_in_memory),  # Training Set
+                                    load_in_memory=load_in_memory, transform=train_transform),  # Training Set
                     VascularDataset(val_list,
                                     load_in_memory=load_in_memory))
     elif train_or_test=='Test':
         test_list = gen_split(data_dir,valid_ids, train_or_test)
-        print(test_list)
         return VascularDataset(test_list, load_in_memory=load_in_memory)
-
-
 
 if __name__ == "__main__":
     data_dir = './data'

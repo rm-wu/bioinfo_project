@@ -25,24 +25,20 @@ np.random.seed(SEED)
 def main(config):
 
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+    train_transforms = A.Compose([
+            A.ElasticTransform(alpha=1, sigma=50, alpha_affine=50,interpolation=1, border_mode=4, always_apply=False, p=0.5),
+            A.HorizontalFlip(always_apply=False, p=0.5),
+    ])
+
     train_dataset, valid_dataset = generate_datasets(config['data_dir'], train_or_test='Train',
                                                      valid_ids=config['val_ids'],
-                                                     load_in_memory=config['load_in_memory'])
+                                                     load_in_memory=config['load_in_memory'], train_transform=train_transforms)
 
     print(f'Length of training dataset: {len(train_dataset)}')
     print(f'Length of training dataset: {len(valid_dataset)}')
 
     # TODO: define and add data augmentation + image normalization
-    # train_dataset.transform = train_transform
-    # valid_dataset.transform = valid_transform
-    transforms = A.Compose(
-        [
-            A.Normalize(),  # TODO: change values
-            ToTensorV2()
-        ]
-    )
-    train_dataset.transform = transforms
-    valid_dataset.transform = transforms
 
     train_loader = DataLoader(train_dataset,
                               batch_size=config['batch_size'],
@@ -51,8 +47,8 @@ def main(config):
     valid_loader = DataLoader(valid_dataset,
                               config['batch_size'],
                               shuffle=False,
-                              num_workers=config['num_workers']
-                              )
+                              num_workers=config['num_workers'])
+
     model = UNet()
     model = model.to(device)
 

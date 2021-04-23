@@ -67,6 +67,6 @@ def parse_arguments():
     config['epochs'] = 2
     config['batch_size'] = 4
     config['trainer'] = {'monitor': 'max dice_score'}
-    config['load_model']='C:/Users/emanu/Documents/Polito/Bioinformatics/dir/1/checkpoint-epoch1.pth'
+    #config['load_model']='C:/Users/emanu/Documents/Polito/Bioinformatics/dir/1/checkpoint-epoch1.pth'
 
     return config
