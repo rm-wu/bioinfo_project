@@ -30,14 +30,16 @@ class BaseTrainer:
         self.epochs = config['epochs']
         #self.save_period = cfg_trainer['save_period']
         self.monitor = cfg_trainer.get('monitor', 'off')
-        self.checkpoint_dir = config['save_dir']
+
+        # TODO : checkpoint handling
+        # self.checkpoint_dir = config['save_dir']
         #self.tensorboard_dir=config['tensorboard_dir']
 
-        id_folder = max(os.listdir(self.checkpoint_dir), default=0) + 1
-        print(id_folder)
+        # id_folder = int(max(os.listdir(self.checkpoint_dir), default=0)) + 1
+        # print(id_folder)
 
-        self.checkpoint_dir = self.checkpoint_dir + f'/{id_folder}'
-        os.mkdir(self.checkpoint_dir)
+        # self.checkpoint_dir = self.checkpoint_dir + f'/{id_folder}'
+        # os.mkdir(self.checkpoint_dir)
 
         # configuration to monitor model performance and save best
         if self.monitor == 'off':
@@ -60,7 +62,7 @@ class BaseTrainer:
         # self.save_period = config['save_period']
         # self.checkpoint_dir = config['save_dir']
         # TODO: Tensorboard writer
-        self.writer = SummaryWriter(comment='-'+str(id_folder))
+        # self.writer = SummaryWriter()
         '''
         # TODO: Resume Network
         if config.resume is not None:
@@ -104,8 +106,9 @@ class BaseTrainer:
                 else:
                     print('NOT IMPROVED')
 
-            self._save_checkpoint(epoch, save_best=best)
+            # self._save_checkpoint(epoch, save_best=best)
 
+    '''
     def _save_checkpoint(self, epoch, save_best=False):
         """
         Saving checkpoints
@@ -129,3 +132,4 @@ class BaseTrainer:
             best_path = str(self.checkpoint_dir + '/model_best.pth')
             torch.save(state, best_path)
             print('saving current best: model_best.pth')
+    '''
