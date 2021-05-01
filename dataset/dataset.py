@@ -40,7 +40,7 @@ class VascularDataset(Dataset):
             seg = seg.convert('RGB')    # remove the transparent portion of the image
             seg = seg.convert('L')      # from RGB to black and white
             seg = seg.point(lambda x: 0 if x < 1 else 255.0, '1')
-            seg = np.array(seg, dtype=np.float)  # equivalent to a cv2 image
+            seg = np.array(seg, dtype=np.float32)  # equivalent to a cv2 image
             seg = np.expand_dims(seg, axis=0)
 
             if self.load_in_memory:
@@ -50,7 +50,7 @@ class VascularDataset(Dataset):
             transformed = self.transform(image=img, mask=seg)
             img = transformed['image']
             seg = transformed['mask']
-        return img, seg
+        return img, seg     # 3 x 668 x 668, 1 x 668 x 668 float tensors
 
 
 def gen_split(root_dir, valid_ids):
