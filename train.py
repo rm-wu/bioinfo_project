@@ -8,11 +8,11 @@ from albumentations.pytorch import ToTensorV2
 import numpy as np
 from parser import parse_arguments
 
-from model.UNet import UNet
+from models.UNet import UNet
 from dataset import generate_datasets
 from trainer import Trainer
 
-from model.metrics import dice_score, iou_score
+from models.metrics import dice_score, iou_score
 
 # fix random seeds for reproducibility
 SEED = 42
