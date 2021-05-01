@@ -1,6 +1,6 @@
 import argparse
 import torch.nn as nn
-
+from models.loss import iou_loss
 
 def parse_arguments():
     args = argparse.ArgumentParser(
@@ -14,6 +14,8 @@ def parse_arguments():
     '''
     args.add_argument('-d', '--data', type=str,
                       help='Data path')
+    args.add_argument("--loss", type=str, default="iou",
+                      choices=["bce", "iou"], help="Loss for the model")
     args.add_argument('--colab', action='store_true')
     args.add_argument('--windows', action='store_true')
 
@@ -59,8 +61,11 @@ def parse_arguments():
         config['val_ids'] = ['1', '5']
         config['save_dir'] = './runs'
 
-    # TODO: check if this loss is good
-    config['criterion'] = nn.BCEWithLogitsLoss()
+    # TODO: check if this loss is
+    if args.loss == "bce":
+        config['criterion'] = nn.BCEWithLogitsLoss()
+    elif args.loss == "iou":
+        config['criterion'] = iou_loss
 
     # TODO: add other metrics like accuracy etc.
     # TODO: configure the optimizer/LR Scheduler and their hyperparams

@@ -94,14 +94,17 @@ class BaseTrainer:
                     improved = (self.mnt_mode == 'min' and log[self.mnt_metric] <= self.mnt_best) or \
                                (self.mnt_mode == 'max' and log[self.mnt_metric] >= self.mnt_best)
                 except KeyError:
+
                     self.mnt_mode = 'off'
                     improved = False
+
                 if improved:
                     print('IMPROVED')
                     self.mnt_best = log[self.mnt_metric]
                     best = True
                 else:
                     print('NOT IMPROVED')
+
             self._save_checkpoint(epoch, save_best=best)
 
     def _save_checkpoint(self, epoch, save_best=False):
@@ -121,7 +124,7 @@ class BaseTrainer:
             'config': self.config
         }
         filename = str(self.checkpoint_dir + '/checkpoint-epoch{}.pth'.format(epoch))
-        #torch.save(state, filename)
+        torch.save(state, filename)
 
         if save_best:
             best_path = str(self.checkpoint_dir + '/model_best.pth')

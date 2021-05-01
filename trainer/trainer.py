@@ -45,7 +45,6 @@ class Trainer(BaseTrainer):
             self.optimizer.zero_grad()
             output = self.model(image)
             loss = self.criterion(self.center(output), self.center(mask))
-
             metric_monitor.update("Loss", loss.item())
             loss.backward()
 
