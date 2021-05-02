@@ -40,12 +40,13 @@ class Trainer(BaseTrainer):
 
         for batch_idx, (image, mask) in enumerate(stream, start=1):
             image, mask = image.to(self.device), mask.to(self.device)
-            print(image.shape)
-            print(mask.shape)
+
             self.optimizer.zero_grad()
             output = self.model(image)
+
             loss = self.criterion(self.center(output), self.center(mask))
             metric_monitor.update("Loss", loss.item())
+
             loss.backward()
 
             for metric in self.metrics:

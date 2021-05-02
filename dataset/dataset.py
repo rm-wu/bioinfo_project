@@ -18,9 +18,11 @@ class VascularDataset(Dataset):
                  load_in_memory=True):
         super(VascularDataset, self).__init__()
         self.images = images_list
+        self.mean_normalization=(0.485, 0.456, 0.406)
+        self.std_normalization=(0.229, 0.224, 0.225)
         self.image_transform = A.Compose(
         [
-            A.Normalize(),
+            A.Normalize(mean=self.mean_normalization, std=self.mean_normalization),
             ToTensorV2()
         ])
         self.transform=transform
@@ -32,6 +34,34 @@ class VascularDataset(Dataset):
     def __len__(self):
         return len(self.images)
 
+    def set_normalization(self, mean, std):
+        self.mean_normalization=mean
+        self.std_normalization=std
+
+    def compute_normalization(self):
+        rmean = 0
+        rstd = 0
+        gmean = 0
+        gstd = 0
+        bmean = 0
+        bstd = 0
+        count =0
+        for img_path in self.images:
+            img = cv2.imread(str(img_path))
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)/255
+            image = img[134:534, 134:534, :]
+            r = np.reshape(image[:, :, 0], -1)
+            g = np.reshape(image[:, :, 1], -1)
+            b = np.reshape(image[:, :, 2], -1)
+            rmean += r.mean()
+            rstd += r.std()
+            gmean += g.mean()
+            gstd += g.std()
+            bmean += b.mean()
+            bstd += b.std()
+            count += 1
+        return (rmean,gmean,bmean), (rstd, gstd, bstd)
+
     def __getitem__(self, index):
         if self.load_in_memory and \
                 index in self._map:
@@ -40,7 +70,7 @@ class VascularDataset(Dataset):
             img_path = str(self.images[index])
             seg_path = img_path.replace('images', 'masks')
             img = cv2.imread(img_path)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)/255
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
             # TODO: alternativa for binarize the segmentation mask
             seg = Image.open(seg_path)
@@ -57,8 +87,9 @@ class VascularDataset(Dataset):
             transformed = self.transform(image=img, mask=seg)
             img = transformed['image']
             seg = transformed['mask']
-        return img, seg
 
+        img = self.image_transform(image=img)['image']
+        return img, seg
 
 
 def gen_split(root_dir, valid_ids, train_or_test='Train'):
@@ -91,7 +122,7 @@ def gen_split(root_dir, valid_ids, train_or_test='Train'):
             test_dataset+=sorted(Path(patient).glob('*'))
         return test_dataset
 
-def generate_datasets(data_dir, valid_ids=None, load_in_memory=True):
+def generate_datasets(data_dir, train_or_test, valid_ids=None, load_in_memory=True, train_transform=None):
     """
     Function that automatically generates training and validation sets for the training phase
 
@@ -105,17 +136,20 @@ def generate_datasets(data_dir, valid_ids=None, load_in_memory=True):
         otherwise:
             train_set: VascularDataset containing the training data split
     """
-    if valid_ids is None:
-        valid_ids = []
-    train_list, val_list = gen_split(data_dir, valid_ids)
-    if len(valid_ids) == 0:
-        return VascularDataset(train_list)
-    else:
-        return (VascularDataset(train_list,
-                                load_in_memory=load_in_memory),    # Training Set
-                VascularDataset(val_list,
-                                load_in_memory=load_in_memory))      # Validation Set
-
+    if train_or_test=='Train':
+        if valid_ids is None:
+            valid_ids = []
+        train_list, val_list = gen_split(data_dir, valid_ids, train_or_test)
+        if len(valid_ids) == 0:
+            return VascularDataset(train_list, transform=train_transform)
+        else:
+            return (VascularDataset(train_list,
+                                    load_in_memory=load_in_memory, transform=train_transform),    # Training Set
+                    VascularDataset(val_list,
+                                    load_in_memory=load_in_memory))      # Validation Set
+    elif train_or_test=='Test':
+        test_list = gen_split(data_dir, valid_ids, train_or_test)
+        return VascularDataset(test_list)
 
 
 if __name__ == "__main__":

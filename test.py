@@ -35,13 +35,6 @@ def main(config):
     # TODO: define and add data augmentation + image normalization
     # train_dataset.transform = train_transform
     # valid_dataset.transform = valid_transform
-    transforms = A.Compose(
-        [
-            A.Normalize(),  # TODO: change values
-            ToTensorV2()
-        ]
-    )
-    test_dataset.transform = transforms
 
     test_loader = DataLoader(test_dataset,
                               batch_size=config['batch_size'],

@@ -1,6 +1,5 @@
 import torch
-# from pytorch_lightning.metrics import IoU
-
+from pytorch_lightning.metrics import IoU
 
 
 # TODO: usare una sola chiamata a sigmoid per entrambe le metriche
@@ -31,6 +30,7 @@ import torch
 
 # TODO: Fix this score
 # TODO: Versione veloce usando pytorch_lighning
+
 def iou_score(prediction, target, threshold=0.5):
     """
     Returns the IoU for class 1 ( elemens for which(prediciton > threshold)  == 1.0)
@@ -58,6 +58,8 @@ def iou_score(prediction, target, threshold=0.5):
         iou_sample = (intersection_sample /
                      torch.clamp(union_sample, min=1e-15))  # compute the iou for each sample
         return torch.mean(iou_sample)                       # return the mean over all samples
+
+
 
 
 def dice_score(prediction, target):

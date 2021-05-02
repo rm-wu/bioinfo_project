@@ -35,6 +35,14 @@ def main(config):
                                                      valid_ids=config['val_ids'],
                                                      load_in_memory=config['load_in_memory'], train_transform=train_transforms)
 
+    (rmean, gmean, bmean), (rstd, gstd, bstd)=train_dataset.compute_normalization()
+
+    train_dataset.set_normalization((rmean, gmean, bmean), (rstd, gstd, bstd))
+    valid_dataset.set_normalization((rmean, gmean, bmean), (rstd, gstd, bstd))
+
+    print('Normalization values: ')
+    print((rmean, gmean, bmean), (rstd, gstd, bstd))
+
     print(f'Length of training dataset: {len(train_dataset)}')
     print(f'Length of training dataset: {len(valid_dataset)}')
 
