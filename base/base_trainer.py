@@ -28,6 +28,7 @@ class BaseTrainer:
 
         cfg_trainer = config['trainer']
         self.epochs = config['epochs']
+        self.visualize = config['visualize']
         #self.save_period = cfg_trainer['save_period']
         self.monitor = cfg_trainer.get('monitor', 'off')
         self.checkpoint_dir = config['save_dir']
