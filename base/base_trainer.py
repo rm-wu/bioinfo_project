@@ -62,7 +62,7 @@ class BaseTrainer:
         # self.save_period = config['save_period']
         # self.checkpoint_dir = config['save_dir']
         # TODO: Tensorboard writer
-        # self.writer = SummaryWriter()
+        self.writer = SummaryWriter()
         '''
         # TODO: Resume Network
         if config.resume is not None:
